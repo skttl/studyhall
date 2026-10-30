@@ -2,6 +2,7 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import GithubSlugger from 'github-slugger';
 import { t } from './i18n';
+import { parseContent, metadataText } from './content';
 export interface Heading { id: string; title: string; level: number }
 export const escapeHTML = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 DOMPurify.addHook('afterSanitizeAttributes', node => {
@@ -13,7 +14,8 @@ DOMPurify.addHook('afterSanitizeAttributes', node => {
 });
 
 export function renderMarkdown(text: string): { html: string; headings: Heading[] } {
-  const html = marked.parse(text, { async: false, gfm: true });
+  const content = parseContent(text);
+  const html = marked.parse(content.body, { async: false, gfm: true });
   const root = document.createElement('div');
   root.innerHTML = DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true }, FORBID_TAGS: ['style', 'form', 'iframe', 'object', 'embed', 'video', 'audio', 'source'],
@@ -27,6 +29,15 @@ export function renderMarkdown(text: string): { html: string; headings: Heading[
     el.setAttribute('data-anchor', id);
     if (el.tagName === 'H2' || el.tagName === 'H3') headings.push({ id, title: el.textContent || '', level: Number(el.tagName[1]) });
   });
+  const title = metadataText(content.metadata, 'title');
+  let firstHeading = root.querySelector('h1');
+  if (title) {
+    if (!firstHeading) { firstHeading = document.createElement('h1'); firstHeading.id = 'document-' + slugger.slug(title); root.prepend(firstHeading); }
+    firstHeading.textContent = title;
+  }
+  const description = metadataText(content.metadata, 'description');
+  if (description) { const lead = document.createElement('p'); lead.className = 'lead'; lead.textContent = description; if (firstHeading) firstHeading.after(lead); else root.prepend(lead); }
+  if (content.invalid) { const warning = document.createElement('p'); warning.className = 'notice'; warning.textContent = t('invalidFrontmatter'); root.prepend(warning); }
   root.querySelectorAll('pre > code.language-mermaid').forEach(code => {
     const pre = code.parentElement!;
     pre.classList.add('mermaid-source');

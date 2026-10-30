@@ -20,6 +20,9 @@ describe('local sources', () => {
   it('rejects symlink entries', async () => {
     await expect(loadZip(await archive([['link', '/etc/passwd', { unixMode: 0o120777 }]]))).rejects.toThrow('unsafeArchive');
   });
+  it('rejects deeply nested archive paths before rendering a recursive tree', async () => {
+    await expect(loadZip(await archive([['folder/'.repeat(102) + 'README.md', '# Deep']]))).rejects.toThrow('sourceLimit');
+  });
   it('enforces actual extraction bytes and file counts', async () => {
     const zip = await archive([['README.md', 'a'.repeat(500)], ['two.md', 'b']]);
     await expect(loadZip(zip, { compressed: 10000, expanded: 499, entries: 10 })).rejects.toThrow('sourceLimit');

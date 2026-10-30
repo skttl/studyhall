@@ -14,4 +14,4 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 
 ## Runtime libraries
 
-StudyHall uses marked (MIT), DOMPurify (Apache-2.0 OR MPL-2.0), Mermaid (MIT), zip.js (BSD-3-Clause), and github-slugger (MIT), plus their transitive dependencies. The distribution includes the license notices generated from the installed production dependency graph. No GitBook source code or translations are included.
+StudyHall uses marked (MIT), DOMPurify (Apache-2.0 OR MPL-2.0), Mermaid (MIT), zip.js (BSD-3-Clause), github-slugger (MIT), and YAML (ISC), plus their transitive dependencies. The distribution includes the license notices generated from the installed production dependency graph. No GitBook source code or translations are included.

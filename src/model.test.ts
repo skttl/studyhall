@@ -13,6 +13,16 @@ describe('document navigation', () => {
     expect(resolveLocal('a.md', 'file:///private').kind).toBe('blocked');
     expect(resolveLocal('a.md', 'https://example.com').kind).toBe('external');
   });
+  it('resolves root links to the collection start document', () => {
+    const docs = [{ path: 'README.md', title: 'Home', text: '' }];
+    expect(findDocument(docs, '')?.path).toBe('README.md');
+    expect(resolveLocal('guides/start.md', '../')).toEqual({ kind: 'local', path: '', hash: '' });
+  });
+  it('resolves extensionless documentation links without guessing between ambiguous files', () => {
+    const docs = [{ path: 'common/helpers.md', title: 'Helpers', text: '' }];
+    expect(findDocument(docs, 'common/helpers')?.path).toBe('common/helpers.md');
+    expect(findDocument([...docs, { path: 'common/helpers.markdown', title: 'Other', text: '' }], 'common/helpers')).toBeUndefined();
+  });
   it('chooses README before index and sorts nested files naturally', async () => {
     const files = new Map([
       ['index.md', new File(['# Index'], 'index.md')], ['README.md', new File(['# Welcome'], 'README.md')],

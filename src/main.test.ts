@@ -6,8 +6,10 @@ it('opens a local folder, searches its content and switches UI language without 
   vi.stubGlobal('File', File);
   vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {} }));
   vi.stubGlobal('scrollTo', () => {});
-  HTMLElement.prototype.scrollIntoView = () => {};
-  let content = '# Project notes\n\n## Setup\n\nInstall the tools.\n\n[Other](guide.md)';
+  const scrollTargets: string[] = [];
+  HTMLElement.prototype.scrollIntoView = function () { scrollTargets.push(this.id); };
+  history.replaceState({}, '', '/?collection=bookmark&doc=README.md#setup');
+  let content = '---\ntitle: Project notes\ndescription: Our project documentation\n---\n# Introduction\n\n## Setup\n\nInstall the tools.\n\n[Other](guide.md)';
   window.showDirectoryPicker = vi.fn(async () => ({ kind: 'directory', name: 'Test docs',
     queryPermission: async () => 'granted', async *values() {
       yield { kind: 'file', name: 'README.md', getFile: async () => new File([content], 'README.md', { lastModified: content.length }) };
@@ -20,7 +22,20 @@ it('opens a local folder, searches its content and switches UI language without 
   const { ready } = await import('./main'); await ready;
   document.querySelector<HTMLButtonElement>('[data-open="directory"]')!.click();
   await vi.waitFor(() => expect(document.querySelector('article')?.textContent).toContain('Install the tools.'));
+  expect(scrollTargets).toContain('document-setup');
   expect(location.search).toContain('collection=');
+  expect(document.querySelector('header #collection')).not.toBeNull();
+  expect(document.querySelector('.sidebar #collection')).toBeNull();
+  document.querySelector<HTMLButtonElement>('[data-action="rename"]')!.click();
+  const name = document.querySelector<HTMLInputElement>('#collection-name')!;
+  name.value = '   ';
+  document.querySelector<HTMLFormElement>('#rename-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  expect(name.validity.customError).toBe(true);
+  name.value = 'Project Atlas';
+  name.dispatchEvent(new Event('input', { bubbles: true }));
+  document.querySelector<HTMLFormElement>('#rename-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  await vi.waitFor(() => expect(document.querySelector<HTMLSelectElement>('header #collection')?.selectedOptions[0].textContent).toBe('Project Atlas'));
+  expect(location.search).toContain('collection=bookmark');
   document.querySelector<HTMLButtonElement>('#search-open')!.click();
   const search = document.querySelector<HTMLInputElement>('#search-input')!;
   search.value = 'wombat'; search.dispatchEvent(new Event('input', { bubbles: true }));

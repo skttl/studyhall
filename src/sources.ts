@@ -7,6 +7,7 @@ export class SourceError extends Error {
 function archivePath(name: string): string {
   if (!name || name.startsWith('/') || /^[a-z]:/i.test(name) || /[\\\u0000-\u001f]/.test(name)) throw new SourceError('unsafeArchive');
   const parts = name.replace(/\/$/, '').split('/');
+  if (parts.length > 101) throw new SourceError('sourceLimit');
   if (parts.some(p => !p || p === '..' || p === '.')) throw new SourceError('unsafeArchive');
   return parts.join('/');
 }

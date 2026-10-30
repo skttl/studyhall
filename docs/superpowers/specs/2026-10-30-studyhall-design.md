@@ -1,6 +1,6 @@
 # StudyHall · design for første version
 
-Dato: 30. oktober 2026. Status: opdateret med engelsk/dansk/tysk brugerflade og Lucide-ikon. En separat implementeringsreviewer fandt ingen væsentlige åbne spørgsmål efter ændringerne. Afventer brugerens godkendelse.
+Dato: 30. oktober 2026. Status: godkendt til implementering; senere brugerfeedback om samlingsnavne, frontmatter og custom domain er indarbejdet nedenfor.
 
 ## Formål
 
@@ -13,7 +13,7 @@ Appen hostes som statiske filer på GitHub Pages og kan installeres som PWA. Dok
 - Navn: StudyHall.
 - Appikon: Lucides `library-big`, https://lucide.dev/icons/library-big. Brug samme motiv til brandikon, favicon og PWA-ikoner; bevar nødvendige licensoplysninger. Ikonet pakkes med appen og kræver ikke netværk under brug.
 - Repository: https://github.com/skttl/studyhall. Det offentlige repository var tomt ved kontrollen 30. oktober 2026.
-- Hosting: GitHub Pages. Forventet standardadresse er https://skttl.github.io/studyhall/, medmindre kontoen allerede bruger et andet domæne. Den faktiske Pages-adresse skal verificeres før udgivelse.
+- Hosting: GitHub Pages med custom domain https://studyhall.skttl.dev/. Den faktiske Pages-opsætning, DNS og HTTPS skal verificeres før udgivelse. Base-stien er `/`.
 - Målgruppe for første version: Chrome og Edge på desktop. Ingen kompatibilitetsomveje for andre browsere eller mobil.
 - Kilder: lokale mapper og lokale zipfiler, inklusive undermapper.
 - Flere samlinger kan huskes og vælges i samme app.
@@ -89,7 +89,7 @@ Bevar det aktuelle dokument og så vidt muligt samme afsnit/læseposition. Hvis 
 
 ## PWA og GitHub Pages
 
-Appen skal kunne bygges til statiske filer med en base-sti på `/studyhall/`. Brug dokumentadresser med query-parametre på appens eksisterende indgangsside og URL-fragment til overskrifter. Det giver genindlæsning og bogmærker uden serverbaseret SPA-routing eller 404-omveje.
+Appen skal kunne bygges til statiske filer med en base-sti på `/` til custom domain studyhall.skttl.dev. Brug dokumentadresser med query-parametre på appens eksisterende indgangsside og URL-fragment til overskrifter. Det giver genindlæsning og bogmærker uden serverbaseret SPA-routing eller 404-omveje.
 
 Manifestets navn er StudyHall. Ikoner, startadresse og scope skal passe til den faktiske base-sti. Cache kun appens egne filer, inklusive renderere, skrifter og andre nødvendige ressourcer. Ingen runtimeafhængighed af CDN'er, eksterne skrifter eller en backend.
 
@@ -113,7 +113,7 @@ Ingen analytics, dokumentupload eller fjernbehandling i første version. Ekstern
 
 Brug det senest gennemgåede design som reference, ikke skitsens hårdkodede indhold som produktimplementering:
 
-`C:\Users\skttl\Documents\Codex\2026-10-30\jeg-x20\outputs\laesested-skitse.html`
+Den lokale klikbare skitse fra brainstormingfasen. Den publiceres ikke som produktkode.
 
 - Venstre kolonne til samlingsvalg og mappestruktur, midterkolonne til dokumentet og højre kolonne til indholdsfortegnelsen.
 - Neutral aktiv menurække med halvfed tekst. Ingen dekorativ farvet sidestreg eller skygge på aktiv navigation.
@@ -165,7 +165,7 @@ Modulgrænser, præcise bibliotekvalg, numeriske ressourcegrænser og ændringsr
 - Kontrollér Lucide `library-big` i brand, favicon og installeret PWA, inklusive korrekt ikonstørrelse, frirum og licensoplysninger.
 - Brug syntetiske testfiler i det offentlige repository. Upload ikke den private GI-dokumentation eller dens billeder som demo eller fixtures.
 
-Det konkrete eksempel til lokal manuel kontrol er `C:\Users\skttl\.codex\worktrees\b191\gidkcore\docs`. Det er læseinput, ikke StudyHalls checkout.
+Brugeren har angivet en privat dokumentationsmappe til lokal manuel kontrol. Den er læseinput og må ikke publiceres i repositoryet.
 
 ## Uden for første version
 
@@ -173,9 +173,17 @@ Redigering, cloudsynkronisering, login, serverbehandling, deling af selve dokume
 
 ## Status og næste skridt
 
-Den klikbare designskitse er gennemgået af brugeren og ændret efter feedback. Ingen produktimplementering, repositoryændringer eller deployment er foretaget. Filadgang, zipgenåbning og PWA er fortsat ubekræftede i en rigtig implementering.
+Den klikbare designskitse er gennemgået af brugeren og ændret efter feedback. Produktimplementeringen er nu i gang. Se implementeringsplan og verificeringsrapport for aktuel status; DNS og deployment må ikke erklæres færdige uden konkret kontrol.
 
 Næste skridt efter godkendelse af dette dokument er en implementeringsplan, hvorefter produktet kan bygges i repositoryet. Designdokumentet flyttes til `docs/superpowers/specs/2026-10-30-studyhall-design.md` i det fremtidige checkout og bevares i Git. Ingen ændringer i GI-checkout er nødvendige.
+
+## Supplerende brugerfeedback under implementering
+
+- Samlingsvælgeren placeres i toppen og viser navnet på den aktuelle samling i stedet for overskriften StudyHall.
+- Samlinger kan omdøbes lokalt uden at ændre kilden eller deres ID. Navnet bevares ved genåbning og reconnection.
+- YAML-frontmatter vises ikke som dokumenttekst. Brug `title` til sidetitel/navigation og `description` til indledning. Øvrige felter læses som metadata. Ugyldig frontmatter giver en forståelig besked, mens dokumentets body stadig kan læses.
+- Dokumentlinks uden filendelse understøttes, når målet entydigt matcher en Markdownfil; der vælges ikke mellem tvetydige filer.
+- Brugeren har oprettet DNS-recorden til studyhall.skttl.dev. GitHub Pages-opsætning og certifikat skal fortsat kontrolleres.
 
 ## Kilder
 

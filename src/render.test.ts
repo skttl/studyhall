@@ -27,4 +27,12 @@ describe('safe document rendering', () => {
     expect(el.querySelector('img')?.hasAttribute('src')).toBe(false);
     expect(el.querySelector('img')?.getAttribute('data-studyhall-image')).toBe('images/private.png');
   });
+  it('uses frontmatter for the visible page title and description while retaining body anchors', () => {
+    const el = document.createElement('div');
+    el.innerHTML = renderMarkdown('---\ntitle: Metadata title\ndescription: A helpful description\n---\n# Body heading\n\n## Setup\n\nText').html;
+    expect(el.querySelector('h1')?.textContent).toBe('Metadata title');
+    expect(el.querySelector('h1')?.id).toBe('document-body-heading');
+    expect(el.querySelector('.lead')?.textContent).toBe('A helpful description');
+    expect(el.textContent).not.toContain('title:');
+  });
 });

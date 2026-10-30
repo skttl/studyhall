@@ -15,7 +15,8 @@
     "dompurify": "^3.4.17",
     "github-slugger": "^2.0.0",
     "marked": "^18.1.2",
-    "mermaid": "^12.2.0"
+    "mermaid": "^12.2.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

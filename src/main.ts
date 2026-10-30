@@ -4,6 +4,7 @@ import { loadSource, SourceError } from './sources';
 import { getCollections, saveCollection, removeCollection } from './storage';
 import { t, language, setLanguage, dictionaries, type Language, type Key } from './i18n';
 import { renderMarkdown, renderDiagrams, escapeHTML as esc, type Heading } from './render';
+import { watchUpdates } from './pwa';
 
 const icon = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/></svg>';
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -45,26 +46,24 @@ function treeHTML() {
   }
   return `<a href="${esc(documentURL(current!.id, ''))}" data-doc="" ${!path() ? 'aria-current="page"' : ''}>${esc(t('overview'))}</a>` + branch(root, '');
 }
-function renderShell() {
+function renderShell(scroll = false) {
   setLanguage(language);
   const unknown = route().has('collection') && !current;
   app.innerHTML = `<a class="skip" href="#content">${esc(t('skip'))}</a>
-    <header><a class="brand" href="/" data-home>${icon}<span>StudyHall</span></a><div class="header-actions"><span class="connection">${esc(t(navigator.onLine ? 'online' : 'offline'))}</span><button id="search-open" data-action="search" ${docs.length ? '' : 'disabled'}>${esc(t('search'))}<kbd>Ctrl K</kbd></button></div></header>
+    <header><div class="identity"><a class="brand" href="/" data-home aria-label="StudyHall">${icon}</a><select id="collection" aria-label="${esc(t('collections'))}"><option value="">StudyHall</option>${collections.map(c => `<option value="${esc(c.id)}" ${c.id === current?.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div><div class="header-actions"><span class="connection">${esc(t(navigator.onLine ? 'online' : 'offline'))}</span><button id="search-open" data-action="search" ${docs.length ? '' : 'disabled'}>${esc(t('search'))}<kbd>Ctrl K</kbd></button></div></header>
     <div id="update-banner" class="update-banner" ${updateWorker ? '' : 'hidden'}><span>${esc(t('updateReady'))}</span>${button('update', 'updateNow')}${button('dismissUpdate', 'dismiss')}</div>
     <div class="layout"><aside class="sidebar" aria-label="${esc(t('collections'))}">
-      <label class="label" for="collection">${esc(t('collections'))}</label>
-      <select id="collection" aria-label="${esc(t('collections'))}"><option value="">StudyHall</option>${collections.map(c => `<option value="${esc(c.id)}" ${c.id === current?.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
-      <div class="source-path">${current ? esc(current.name) + (current.kind === 'directory' ? ' /' : '') : ''}</div>
+      <div class="source-path">${current ? esc(t('source')) + ' · ' + esc(current.handle.name) + (current.kind === 'directory' ? ' /' : '') : ''}</div>
       <nav id="tree" class="tree" aria-label="${esc(t('collections'))}">${current && snapshot ? treeHTML() : ''}</nav>
       <div class="sidebar-footer"><div class="open-actions">${openButtons()}</div>
-      ${current ? `<details class="source-actions"><summary>${esc(t('actions'))}</summary>${button('reconnect', 'reconnect')}${button('forget', 'forget', `title="${esc(t('forgetText'))}"`)}</details>` : ''}
+      ${current ? `<details class="source-actions"><summary>${esc(t('actions'))}</summary>${button('rename', 'rename')}${button('reconnect', 'reconnect')}${button('forget', 'forget', `title="${esc(t('forgetText'))}"`)}</details>` : ''}
       <label class="language"><span>${esc(t('language'))}</span><select id="language" aria-label="${esc(t('language'))}">${Object.keys(dictionaries).map(code => `<option value="${code}" ${code === language ? 'selected' : ''}>${({ en: 'English', da: 'Dansk', de: 'Deutsch' } as const)[code as Language]}</option>`).join('')}</select></label><p>${esc(t('localOnly'))}</p></div>
     </aside><main id="content" tabindex="-1"><div id="source-status" role="status"></div><div class="document-toolbar"><span id="breadcrumb"></span>${button('copy', 'copyLink')}</div><article id="article"></article></main>
     <aside class="right"><h2>${esc(t('onThisPage'))}</h2><nav class="toc" id="toc" aria-label="${esc(t('onThisPage'))}"></nav><div class="refresh"><button id="refresh" data-action="refresh" ${!current || busy ? 'disabled' : ''}>↻ ${esc(t('refresh'))}</button><p id="checked"></p></div></aside></div>
     <dialog id="search-dialog" aria-labelledby="search-title"><div class="dialog-title"><h2 id="search-title">${esc(t('search'))}</h2>${button('closeSearch', 'close')}</div><div class="dialog-body"><input id="search-input" type="search" placeholder="${esc(t('searchPlaceholder'))}" aria-label="${esc(t('search'))}"><p id="search-count" class="muted"></p><div id="search-results"></div></div></dialog>
-    <div id="toast" class="toast" role="status"></div>`;
+    <dialog id="rename-dialog" aria-labelledby="rename-title"><form id="rename-form"><div class="dialog-title"><h2 id="rename-title">${esc(t('rename'))}</h2>${button('closeRename', 'close')}</div><div class="dialog-body"><label for="collection-name">${esc(t('collectionName'))}</label><input id="collection-name" name="collectionName" required maxlength="100" value="${esc(current?.name || '')}"><button class="primary" type="submit">${esc(t('saveName'))}</button></div></form></dialog><div id="toast" class="toast" role="status"></div>`;
   renderStatus();
-  if (snapshot) renderPage(false);
+  if (snapshot) renderPage(scroll);
   else {
     clearURLs(); headings = []; document.title = 'StudyHall';
     $('article').innerHTML = `<div class="welcome">${icon}<h1>${esc(t(unknown ? 'unknownCollection' : current ? 'openSource' : 'welcomeTitle'))}</h1><p>${esc(t(current ? 'permission' : 'welcomeText'))}</p><div class="welcome-actions">${openButtons()}</div><p class="drop-hint">${esc(t('dropHint'))}</p>${!supported ? `<p class="support-note">${esc(t('supported'))}</p>` : ''}${collections.length && !current ? `<div class="recent">${collections.map(c => `<button data-collection="${esc(c.id)}">${esc(c.name)} <span>→</span></button>`).join('')}</div>` : ''}</div>`;
@@ -113,6 +112,7 @@ function decorateContent(article: HTMLElement, from: string) {
     if (target.kind === 'local') {
       const doc = findDocument(docs, target.path);
       if (doc) { a.href = documentURL(current!.id, doc.path, target.hash); a.dataset.doc = doc.path; a.dataset.hash = target.hash; return; }
+      if (!target.path) { a.href = documentURL(current!.id, '', target.hash); a.dataset.doc = ''; a.dataset.hash = target.hash; return; }
       a.dataset.linkError = snapshot!.files.has(target.path) ? 'unsupportedFile' : 'notFound';
     } else a.dataset.linkError = target.kind === 'outside' ? 'outside' : 'blocked';
     a.dataset.original = href; a.href = '#';
@@ -162,7 +162,7 @@ async function activate(collection: Collection, ask = false) {
       if (start) history.replaceState({}, '', documentURL(collection.id, start.path, location.hash.slice(1)));
     }
   } catch (error) { if (token === operation) errorKey = sourceError(error); }
-  finally { if (token === operation) { busy = false; renderShell(); } }
+  finally { if (token === operation) { busy = false; renderShell(true); } }
 }
 function sourceError(error: unknown): Key {
   if (error instanceof SourceError) return error.key;
@@ -175,7 +175,7 @@ async function register(handle: FileSystemDirectoryHandle | FileSystemFileHandle
   if (!replacement) {
     for (const item of collections) { try { if (await item.handle.isSameEntry(handle)) { previous = item; break; } } catch { /* Unavailable entries can still be reconnected explicitly. */ } }
   }
-  const collection: Collection = { id: replacement || previous?.id || crypto.randomUUID(), name: handle.name, kind: handle.kind, handle };
+  const collection: Collection = { id: replacement || previous?.id || crypto.randomUUID(), name: previous?.name || handle.name, kind: handle.kind, handle };
   collections = collections.filter(c => c.id !== collection.id); collections.push(collection);
   let storageFailed = false;
   try { await saveCollection(collection); } catch { storageFailed = true; }
@@ -253,6 +253,8 @@ app.addEventListener('click', event => {
 async function handleAction(action: string) {
   if (action === 'search') openSearch();
   else if (action === 'closeSearch') ($('search-dialog') as HTMLDialogElement).close();
+  else if (action === 'rename' && current) { ($('rename-dialog') as HTMLDialogElement).showModal(); ($('collection-name') as HTMLInputElement).select(); }
+  else if (action === 'closeRename') ($('rename-dialog') as HTMLDialogElement).close();
   else if (action === 'refresh') await refresh();
   else if (action === 'authorize' && current) await activate(current, true);
   else if (action === 'reconnect' && current) await pick(current.kind, current.id);
@@ -266,7 +268,22 @@ async function handleAction(action: string) {
   } else if (action === 'update') updateWorker?.postMessage({ type: 'SKIP_WAITING' });
   else if (action === 'dismissUpdate') $('update-banner').hidden = true;
 }
-app.addEventListener('input', event => { if ((event.target as HTMLElement).id === 'search-input') search(); });
+app.addEventListener('input', event => {
+  if ((event.target as HTMLElement).id === 'search-input') search();
+  if ((event.target as HTMLElement).id === 'collection-name') (event.target as HTMLInputElement).setCustomValidity('');
+});
+app.addEventListener('submit', event => {
+  if ((event.target as HTMLElement).id !== 'rename-form' || !current) return;
+  event.preventDefault();
+  const input = $('collection-name') as HTMLInputElement;
+  const name = input.value.trim();
+  input.setCustomValidity(name ? '' : t('emptyName'));
+  if (!input.reportValidity()) return;
+  const collection = { ...current, name };
+  void saveCollection(collection).catch(() => notify(t('storageError')));
+  current = collection; collections = collections.map(c => c.id === collection.id ? collection : c);
+  const y = window.scrollY; renderShell(); window.scrollTo(0, y);
+});
 app.addEventListener('change', event => {
   const select = event.target as HTMLSelectElement;
   if (select.id === 'language') { const y = window.scrollY; setLanguage(select.value as Language); renderShell(); window.scrollTo(0, y); }
@@ -304,10 +321,7 @@ async function serviceWorker() {
   if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-    const waiting = () => { if (registration.waiting && navigator.serviceWorker.controller) { updateWorker = registration.waiting; renderShell(); } };
-    waiting(); registration.addEventListener('updatefound', () => registration.installing?.addEventListener('statechange', () => {
-      if (registration.installing?.state === 'installed') { waiting(); if (!navigator.serviceWorker.controller) notify(t('offlineReady')); }
-    }));
+    watchUpdates(registration, () => Boolean(navigator.serviceWorker.controller), worker => { updateWorker = worker; renderShell(); }, () => notify(t('offlineReady')));
     let reloading = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloading && updateWorker) { reloading = true; location.reload(); } });
   } catch { /* Local reading still works when offline caching is unavailable. */ }

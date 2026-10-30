@@ -28,6 +28,7 @@ export const en = {
   missingDocument: 'This document is no longer in the collection. Open the overview to choose another.',
   overviewAutomatic: 'Automatically generated. No files are added to your source.', source: 'Source',
   offline: 'Offline', online: 'Local documentation', details: 'Details', cancelled: 'No source selected.',
+  rename: 'Rename collection', collectionName: 'Collection name', saveName: 'Save name', emptyName: 'Enter a name for this collection.', invalidFrontmatter: 'The frontmatter could not be read. The document is shown without its metadata.',
 } satisfies Record<string, string>;
 export type Key = keyof typeof en;
 type Dictionary = Record<Key, string>;
@@ -61,6 +62,7 @@ const da: Dictionary = {
   missingDocument: 'Dokumentet findes ikke længere i samlingen. Åbn oversigten for at vælge et andet.',
   overviewAutomatic: 'Automatisk genereret. Der tilføjes ingen filer til din kilde.', source: 'Kilde',
   offline: 'Offline', online: 'Lokal dokumentation', details: 'Detaljer', cancelled: 'Ingen kilde valgt.',
+  rename: 'Omdøb samling', collectionName: 'Samlingens navn', saveName: 'Gem navn', emptyName: 'Angiv et navn til samlingen.', invalidFrontmatter: 'Frontmatter kunne ikke læses. Dokumentet vises uden metadata.',
 };
 const de: Dictionary = {
   collections: 'Sammlungen', openFolder: 'Ordner öffnen', openZip: 'ZIP öffnen', openSource: 'Dokumentation öffnen',
@@ -92,6 +94,7 @@ const de: Dictionary = {
   missingDocument: 'Dieses Dokument ist nicht mehr in der Sammlung. Öffne die Übersicht, um ein anderes auszuwählen.',
   overviewAutomatic: 'Automatisch erstellt. Deiner Quelle werden keine Dateien hinzugefügt.', source: 'Quelle',
   offline: 'Offline', online: 'Lokale Dokumentation', details: 'Details', cancelled: 'Keine Quelle ausgewählt.',
+  rename: 'Sammlung umbenennen', collectionName: 'Name der Sammlung', saveName: 'Namen speichern', emptyName: 'Gib einen Namen für diese Sammlung ein.', invalidFrontmatter: 'Die Frontmatter konnte nicht gelesen werden. Das Dokument wird ohne Metadaten angezeigt.',
 };
 export const dictionaries = { en, da, de };
 export type Language = keyof typeof dictionaries;
