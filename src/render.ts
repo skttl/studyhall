@@ -4,6 +4,13 @@ import GithubSlugger from 'github-slugger';
 import { t } from './i18n';
 export interface Heading { id: string; title: string; level: number }
 export const escapeHTML = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
+DOMPurify.addHook('afterSanitizeAttributes', node => {
+  if (node.nodeName === 'IMG') {
+    const source = node.getAttribute('src');
+    if (source) node.setAttribute('data-studyhall-image', source);
+    node.removeAttribute('src');
+  }
+});
 
 export function renderMarkdown(text: string): { html: string; headings: Heading[] } {
   const html = marked.parse(text, { async: false, gfm: true });
@@ -40,7 +47,7 @@ export async function renderDiagrams(container: HTMLElement) {
     rendering = rendering.catch(() => {}).then(async () => {
       if (!container.isConnected || !source.isConnected) return;
       const dark = matchMedia('(prefers-color-scheme: dark)').matches;
-      mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'default', maxTextSize: 50000, suppressErrorRendering: true });
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'default', htmlLabels: false, maxTextSize: 50000, suppressErrorRendering: true });
       try {
         const result = await mermaid.render('studyhall-diagram-' + ++diagramSequence, source.dataset.source || '');
         if (!source.isConnected) return;

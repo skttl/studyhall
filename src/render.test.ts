@@ -22,4 +22,9 @@ describe('safe document rendering', () => {
     expect(el.querySelector('.mermaid-source')?.textContent).toContain('A-->B');
     expect(el.querySelector('svg,script')).toBeNull();
   });
+  it('does not request local images from the hosting server before resolving them', () => {
+    const el = document.createElement('div'); el.innerHTML = renderMarkdown('![Local](images/private.png)').html;
+    expect(el.querySelector('img')?.hasAttribute('src')).toBe(false);
+    expect(el.querySelector('img')?.getAttribute('data-studyhall-image')).toBe('images/private.png');
+  });
 });
