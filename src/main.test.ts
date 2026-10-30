@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto';
 import { File } from 'node:buffer';
 import { expect, it, vi } from 'vitest';
-it('opens a local folder, searches its content and switches UI language without translating documents', async () => {
+it('opens and manages a collection from the toolbar while preserving search, language and refresh', async () => {
   vi.stubGlobal('File', File);
   vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {} }));
   vi.stubGlobal('scrollTo', () => {});
@@ -20,13 +20,31 @@ it('opens a local folder, searches its content and switches UI language without 
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
   const { ready } = await import('./main'); await ready;
-  document.querySelector<HTMLButtonElement>('[data-open="directory"]')!.click();
+  const openMenu = document.querySelector<HTMLDetailsElement>('header .open-menu')!;
+  expect(openMenu).not.toBeNull();
+  openMenu.querySelector('summary')!.click();
+  expect(openMenu.open).toBe(true);
+  expect(openMenu.querySelector('[data-open="file"]')).not.toBeNull();
+  openMenu.querySelector<HTMLButtonElement>('[data-open="directory"]')!.click();
+  expect(openMenu.open).toBe(false);
   await vi.waitFor(() => expect(document.querySelector('article')?.textContent).toContain('Install the tools.'));
   expect(scrollTargets).toContain('document-setup');
   expect(location.search).toContain('collection=');
   expect(document.querySelector('header #collection')).not.toBeNull();
   expect(document.querySelector('.sidebar #collection')).toBeNull();
-  document.querySelector<HTMLButtonElement>('[data-action="rename"]')!.click();
+  expect(document.querySelector('header #language')).not.toBeNull();
+  expect(document.querySelector('header #refresh')).not.toBeNull();
+  expect(document.querySelector('.sidebar [data-open], .sidebar [data-action], .sidebar #language')).toBeNull();
+  const settings = document.querySelector<HTMLDetailsElement>('header .collection-settings')!;
+  settings.querySelector('summary')!.click();
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  expect(settings.open).toBe(false);
+  settings.querySelector('summary')!.click();
+  document.querySelector<HTMLElement>('main')!.click();
+  expect(settings.open).toBe(false);
+  settings.querySelector('summary')!.click();
+  settings.querySelector<HTMLButtonElement>('[data-action="rename"]')!.click();
+  expect(settings.open).toBe(false);
   const name = document.querySelector<HTMLInputElement>('#collection-name')!;
   name.value = '   ';
   document.querySelector<HTMLFormElement>('#rename-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));

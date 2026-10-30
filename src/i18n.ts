@@ -1,5 +1,5 @@
 export const en = {
-  collections: 'Collections', openFolder: 'Open folder', openZip: 'Open ZIP', openSource: 'Open documentation',
+  open: 'Open', collections: 'Collections', openFolder: 'Open folder', openZip: 'Open ZIP', openSource: 'Open documentation',
   localOnly: 'Your files stay on your computer.', welcomeTitle: 'Open your documentation',
   welcomeText: 'Read a folder or ZIP of Markdown files as a documentation site. No setup, account or upload.',
   dropHint: 'Or drop a folder or ZIP file here', supported: 'Use Chrome or Edge on desktop to open and remember local files.',
@@ -33,7 +33,7 @@ export const en = {
 export type Key = keyof typeof en;
 type Dictionary = Record<Key, string>;
 const da: Dictionary = {
-  collections: 'Samlinger', openFolder: 'Åbn mappe', openZip: 'Åbn ZIP', openSource: 'Åbn dokumentation',
+  open: 'Åbn', collections: 'Samlinger', openFolder: 'Åbn mappe', openZip: 'Åbn ZIP', openSource: 'Åbn dokumentation',
   localOnly: 'Dine filer bliver på din computer.', welcomeTitle: 'Åbn din dokumentation',
   welcomeText: 'Læs en mappe eller ZIP med Markdownfiler som et dokumentationssite. Ingen opsætning, konto eller upload.',
   dropHint: 'Eller træk en mappe eller ZIP-fil hertil', supported: 'Brug Chrome eller Edge på desktop til at åbne og huske lokale filer.',
@@ -65,7 +65,7 @@ const da: Dictionary = {
   rename: 'Omdøb samling', collectionName: 'Samlingens navn', saveName: 'Gem navn', emptyName: 'Angiv et navn til samlingen.', invalidFrontmatter: 'Frontmatter kunne ikke læses. Dokumentet vises uden metadata.',
 };
 const de: Dictionary = {
-  collections: 'Sammlungen', openFolder: 'Ordner öffnen', openZip: 'ZIP öffnen', openSource: 'Dokumentation öffnen',
+  open: 'Öffnen', collections: 'Sammlungen', openFolder: 'Ordner öffnen', openZip: 'ZIP öffnen', openSource: 'Dokumentation öffnen',
   localOnly: 'Deine Dateien bleiben auf deinem Computer.', welcomeTitle: 'Öffne deine Dokumentation',
   welcomeText: 'Lies einen Ordner oder eine ZIP mit Markdown-Dateien als Dokumentationswebsite. Ohne Einrichtung, Konto oder Upload.',
   dropHint: 'Oder ziehe einen Ordner oder eine ZIP-Datei hierher', supported: 'Verwende Chrome oder Edge auf dem Desktop, um lokale Dateien zu öffnen und zu merken.',

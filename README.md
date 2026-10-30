@@ -20,11 +20,11 @@ Use the production preview to check the service worker. Development intentionall
 
 ## Using StudyHall
 
-- Open a folder or ZIP using the picker, or drop a source onto the app.
-- Switch between remembered collections in the top bar. Rename a collection through Collection actions to distinguish sources with the same folder name. Its bookmark ID stays the same. Bookmarks work in the same browser profile after access is granted again if necessary.
+- Choose a folder or ZIP from Open in the top bar, or drop a source onto the app.
+- Switch between remembered collections in the top bar. Rename a collection through the settings button beside its name to distinguish sources with the same folder name. Its bookmark ID stays the same. Bookmarks work in the same browser profile after access is granted again if necessary.
 - Search with the button or Ctrl/Cmd+K. UI language can be changed independently of document language.
-- The app checks for disk changes when you return, and when you select Refresh.
-- Reconnect a moved/replaced source through Collection actions. This keeps its collection ID and existing bookmarks. Forget removes only the reference.
+- The app checks for disk changes when you return, and when you select Refresh in the top bar.
+- Reconnect a moved/replaced source through the settings button beside its name. This keeps its collection ID and existing bookmarks. Forget removes only the reference.
 - A folder's README.md or index.md is the start page; otherwise StudyHall builds an overview in memory. An overview link is always available.
 
 Supported: Markdown/GFM, local images, relative links, GitHub-style heading slugs and Mermaid. MDX, wikilinks, editing and source files outside the chosen root are not supported. Arbitrary HTML is sanitized. Other local file types receive a descriptive message instead of opening an editor.

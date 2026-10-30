@@ -18,6 +18,7 @@ const route = () => new URL(location.href).searchParams;
 const path = () => route().get('doc') || '';
 const button = (action: string, label: Key, extra = '') => `<button type="button" data-action="${action}" ${extra}>${esc(t(label))}</button>`;
 const openButtons = () => `<button type="button" class="primary" data-open="directory">${esc(t('openFolder'))}</button><button type="button" data-open="file">${esc(t('openZip'))}</button>`;
+const openMenu = () => `<details class="toolbar-menu open-menu"><summary>${esc(t('open'))} <span aria-hidden="true">⌄</span></summary><div class="dropdown">${openButtons()}</div></details>`;
 function notify(message: string) {
   $('toast').textContent = message;
   clearTimeout(noticeTimer); noticeTimer = setTimeout(() => { if ($('toast')) $('toast').textContent = ''; }, 6000);
@@ -50,23 +51,21 @@ function renderShell(scroll = false) {
   setLanguage(language);
   const unknown = route().has('collection') && !current;
   app.innerHTML = `<a class="skip" href="#content">${esc(t('skip'))}</a>
-    <header><div class="identity"><a class="brand" href="/" data-home aria-label="StudyHall">${icon}</a><select id="collection" aria-label="${esc(t('collections'))}"><option value="">StudyHall</option>${collections.map(c => `<option value="${esc(c.id)}" ${c.id === current?.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div><div class="header-actions"><span class="connection">${esc(t(navigator.onLine ? 'online' : 'offline'))}</span><button id="search-open" data-action="search" ${docs.length ? '' : 'disabled'}>${esc(t('search'))}<kbd>Ctrl K</kbd></button></div></header>
+    <header><div class="identity"><a class="brand" href="/" data-home aria-label="StudyHall">${icon}</a><select id="collection" aria-label="${esc(t('collections'))}"><option value="">StudyHall</option>${collections.map(c => `<option value="${esc(c.id)}" ${c.id === current?.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>${current ? `<details class="toolbar-menu collection-settings"><summary aria-label="${esc(t('actions'))}" title="${esc(t('actions'))}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m9 3-.6 2.4-2 .9L4 5.5l-2 3.4 1.8 1.7v2.8L2 15.1l2 3.4 2.4-.8 2 .9L9 21h6l.6-2.4 2-.9 2.4.8 2-3.4-1.8-1.7v-2.8L22 8.9l-2-3.4-2.4.8-2-.9L15 3Z"/><circle cx="12" cy="12" r="3"/></svg></summary><div class="dropdown">${button('rename', 'rename')}${button('reconnect', 'reconnect')}${button('forget', 'forget', `title="${esc(t('forgetText'))}"`)}</div></details>` : ''}</div><div class="header-actions"><span class="connection">${esc(t(navigator.onLine ? 'online' : 'offline'))}</span>${openMenu()}<div class="refresh"><button id="refresh" data-action="refresh" ${!current || busy ? 'disabled' : ''}><span aria-hidden="true">↻</span> ${esc(t('refresh'))}</button><span id="checked" class="sr-only"></span></div><label class="language"><span class="sr-only">${esc(t('language'))}</span><select id="language" aria-label="${esc(t('language'))}">${Object.keys(dictionaries).map(code => `<option value="${code}" ${code === language ? 'selected' : ''}>${({ en: 'English', da: 'Dansk', de: 'Deutsch' } as const)[code as Language]}</option>`).join('')}</select></label><button id="search-open" aria-label="${esc(t('search'))}" data-action="search" ${docs.length ? '' : 'disabled'}><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>${esc(t('search'))}</span><kbd>Ctrl K</kbd></button></div></header>
     <div id="update-banner" class="update-banner" ${updateWorker ? '' : 'hidden'}><span>${esc(t('updateReady'))}</span>${button('update', 'updateNow')}${button('dismissUpdate', 'dismiss')}</div>
     <div class="layout"><aside class="sidebar" aria-label="${esc(t('collections'))}">
       <div class="source-path">${current ? esc(t('source')) + ' · ' + esc(current.handle.name) + (current.kind === 'directory' ? ' /' : '') : ''}</div>
       <nav id="tree" class="tree" aria-label="${esc(t('collections'))}">${current && snapshot ? treeHTML() : ''}</nav>
-      <div class="sidebar-footer"><div class="open-actions">${openButtons()}</div>
-      ${current ? `<details class="source-actions"><summary>${esc(t('actions'))}</summary>${button('rename', 'rename')}${button('reconnect', 'reconnect')}${button('forget', 'forget', `title="${esc(t('forgetText'))}"`)}</details>` : ''}
-      <label class="language"><span>${esc(t('language'))}</span><select id="language" aria-label="${esc(t('language'))}">${Object.keys(dictionaries).map(code => `<option value="${code}" ${code === language ? 'selected' : ''}>${({ en: 'English', da: 'Dansk', de: 'Deutsch' } as const)[code as Language]}</option>`).join('')}</select></label><p>${esc(t('localOnly'))}</p></div>
+      <div class="sidebar-footer"><p>${esc(t('localOnly'))}</p></div>
     </aside><main id="content" tabindex="-1"><div id="source-status" role="status"></div><div class="document-toolbar"><span id="breadcrumb"></span>${button('copy', 'copyLink')}</div><article id="article"></article></main>
-    <aside class="right"><h2>${esc(t('onThisPage'))}</h2><nav class="toc" id="toc" aria-label="${esc(t('onThisPage'))}"></nav><div class="refresh"><button id="refresh" data-action="refresh" ${!current || busy ? 'disabled' : ''}>↻ ${esc(t('refresh'))}</button><p id="checked"></p></div></aside></div>
+    <aside class="right"><h2>${esc(t('onThisPage'))}</h2><nav class="toc" id="toc" aria-label="${esc(t('onThisPage'))}"></nav></aside></div>
     <dialog id="search-dialog" aria-labelledby="search-title"><div class="dialog-title"><h2 id="search-title">${esc(t('search'))}</h2>${button('closeSearch', 'close')}</div><div class="dialog-body"><input id="search-input" type="search" placeholder="${esc(t('searchPlaceholder'))}" aria-label="${esc(t('search'))}"><p id="search-count" class="muted"></p><div id="search-results"></div></div></dialog>
     <dialog id="rename-dialog" aria-labelledby="rename-title"><form id="rename-form"><div class="dialog-title"><h2 id="rename-title">${esc(t('rename'))}</h2>${button('closeRename', 'close')}</div><div class="dialog-body"><label for="collection-name">${esc(t('collectionName'))}</label><input id="collection-name" name="collectionName" required maxlength="100" value="${esc(current?.name || '')}"><button class="primary" type="submit">${esc(t('saveName'))}</button></div></form></dialog><div id="toast" class="toast" role="status"></div>`;
   renderStatus();
   if (snapshot) renderPage(scroll);
   else {
     clearURLs(); headings = []; document.title = 'StudyHall';
-    $('article').innerHTML = `<div class="welcome">${icon}<h1>${esc(t(unknown ? 'unknownCollection' : current ? 'openSource' : 'welcomeTitle'))}</h1><p>${esc(t(current ? 'permission' : 'welcomeText'))}</p><div class="welcome-actions">${openButtons()}</div><p class="drop-hint">${esc(t('dropHint'))}</p>${!supported ? `<p class="support-note">${esc(t('supported'))}</p>` : ''}${collections.length && !current ? `<div class="recent">${collections.map(c => `<button data-collection="${esc(c.id)}">${esc(c.name)} <span>→</span></button>`).join('')}</div>` : ''}</div>`;
+    $('article').innerHTML = `<div class="welcome">${icon}<h1>${esc(t(unknown ? 'unknownCollection' : current ? 'openSource' : 'welcomeTitle'))}</h1><p>${esc(t(current ? 'permission' : 'welcomeText'))}</p><div class="welcome-actions">${openMenu()}</div><p class="drop-hint">${esc(t('dropHint'))}</p>${!supported ? `<p class="support-note">${esc(t('supported'))}</p>` : ''}${collections.length && !current ? `<div class="recent">${collections.map(c => `<button data-collection="${esc(c.id)}">${esc(c.name)} <span>→</span></button>`).join('')}</div>` : ''}</div>`;
     document.querySelector('.document-toolbar')?.setAttribute('hidden', '');
   }
 }
@@ -76,6 +75,7 @@ function renderStatus() {
   $('content')?.setAttribute('aria-busy', String(busy));
   const refresh = $('refresh') as HTMLButtonElement; if (refresh) refresh.disabled = busy || !current;
   if ($('checked')) $('checked').textContent = checkedAt ? t('updated', { time: new Intl.DateTimeFormat(language, { hour: '2-digit', minute: '2-digit' }).format(checkedAt) }) : '';
+  if (refresh) refresh.title = $('checked')?.textContent || t('refresh');
 }
 function renderPage(scroll = true) {
   if (!current || !snapshot) return;
@@ -291,6 +291,16 @@ app.addEventListener('change', event => {
     const item = collections.find(c => c.id === select.value);
     if (item) { history.pushState({}, '', documentURL(item.id, '')); void activate(item); }
     else { ++operation; busy = false; current = undefined; snapshot = undefined; docs = []; history.pushState({}, '', '/'); renderShell(); }
+  }
+});
+document.addEventListener('click', event => {
+  for (const menu of document.querySelectorAll<HTMLDetailsElement>('.toolbar-menu[open]')) {
+    if (!menu.contains(event.target as Node) || (event.target as Element).closest('button')) menu.open = false;
+  }
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') for (const menu of document.querySelectorAll<HTMLDetailsElement>('.toolbar-menu[open]')) {
+    menu.open = false; menu.querySelector('summary')?.focus();
   }
 });
 document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); openSearch(); } });
