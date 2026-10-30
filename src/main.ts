@@ -5,7 +5,7 @@ import { getCollections, saveCollection, removeCollection } from './storage';
 import { t, language, setLanguage, dictionaries, type Language, type Key } from './i18n';
 import { renderMarkdown, renderDiagrams, escapeHTML as esc, type Heading } from './render';
 
-const icon = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/><path d="M20.4 20.5c.5-.1.8-.6.6-1.1L16.3 3.7c-.1-.5-.6-.8-1.1-.6l-1.9.6c-.5.1-.8.6-.6 1.1l4.7 15.7c.1.5.6.8 1.1.6z"/></svg>';
+const icon = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/></svg>';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 let collections: Collection[] = [], current: Collection | undefined, snapshot: Snapshot | undefined, docs: Doc[] = [];

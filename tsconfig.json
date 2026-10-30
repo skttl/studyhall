@@ -7,7 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["vite/client", "wicg-file-system-access"]
+    "types": ["vite/client", "wicg-file-system-access", "node"]
   },
   "include": ["src"]
 }

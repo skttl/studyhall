@@ -1,0 +1,13 @@
+{
+  "id": "/",
+  "name": "StudyHall",
+  "short_name": "StudyHall",
+  "description": "Read local Markdown documentation, online or offline.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#18191b",
+  "theme_color": "#18191b",
+  "icons": [{ "src": "/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
